@@ -1,10 +1,27 @@
 import React from 'react';
 import styled from 'styled-components';
 import { createGlobalStyle } from 'styled-components'
+import { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from './Context.js/auth.js';
 import Logo from './assets/nICE.png'
 import Go from "./assets/Google.png"
+import { Circles } from 'react-loader-spinner'
+import { Link } from 'react-router-dom';
 
 export default function Login(){
+
+    const [Loading, setLoading] = useState(false)
+    const [EmailUser, setEmail] = useState("")
+    const [SenhaUser, setSenha] = useState("")
+
+    const { setUser } = useContext(AuthContext);
+    let navigate = useNavigate();
+
+    function emBreve(){
+        alert("Em desenvolvimento...")
+    }
+
     return(
         <>
         <GlobalStyle/>
@@ -22,20 +39,24 @@ export default function Login(){
                     <Senha placeholder='Senha'></Senha>
                 <ConteinerRemember>
                     <RememberMe>
-                        <Checkbox></Checkbox>
-                        <RememberMeText>Lembrar-me</RememberMeText>
+                        <Checkbox onClick={emBreve}></Checkbox>
+                        <RememberMeText onClick={emBreve}>Lembrar-me</RememberMeText>
                     </RememberMe>
-                    <Forgot>Esqueceu a senha?</Forgot>
+                    <Forgot onClick={emBreve}>Esqueceu a senha?</Forgot>
                 </ConteinerRemember>
+                <Link to="/Principal" disabled={Loading ? true : false}>
                 <Entrar><p>Entrar</p></Entrar>
+                </Link>
                 <Or>Ou</Or>
                 <GoogleBox>
                     <GoogleContainer>
                         <Google src={Go}></Google>
-                        <Googletext>Logue com o Google</Googletext>
+                        <Googletext onClick={emBreve}>Logue com o Google</Googletext>
                     </GoogleContainer>
                 </GoogleBox>
+                <Link to="/Register" disabled={Loading ? true : false}>
                 <RegisterBox>Não tem uma conta?<span>  Cadastre-se</span></RegisterBox>
+                </Link>
                 </ContainerBot>
             </Background>
         </>
@@ -221,6 +242,7 @@ const RememberMe = styled.div`
     flex: none;
     order: 0;
     flex-grow: 0;
+    cursor: pointer;
 
 `
 const Checkbox = styled.div`
@@ -260,6 +282,7 @@ const Forgot = styled.p`
     flex: none;
     order: 1;
     flex-grow: 0;
+    cursor: pointer;
 
 `
 const Or = styled.p`
@@ -315,6 +338,7 @@ const GoogleBox = styled.div`
     top: 630px;
     border: 1px solid #D0D5DD;
     border-radius: 8px;
+    cursor: pointer;
 
 `
 const GoogleContainer = styled.div`
@@ -352,6 +376,7 @@ const Googletext = styled.p`
     flex: none;
     order: 1;
     flex-grow: 0;
+    
 
 `
 
@@ -369,8 +394,14 @@ const RegisterBox = styled.p`
     line-height: 24px;
     text-align: center;
     color: #344054;
+    cursor: pointer;
 
     span{
         color:#5429FF
+    }
+
+    &:hover{
+        text-decoration: underline;
+        text-decoration-color:#5429FF;
     }
 `

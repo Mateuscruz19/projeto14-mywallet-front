@@ -1,4 +1,9 @@
 
 export default function Principal(){
-    return
+    
+    return(
+        <>
+        <p>Oi</p>
+        </>
+    )
 }
