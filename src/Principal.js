@@ -11,26 +11,59 @@ import Money from "./assets/css/money.webp"
 import Perfil from "./assets/css/perfil.jpg"
 import ConfigIcon from "./assets/css/co.png"
 import Chevron from "./assets/chevron.png"
+import One from "./assets/Fist.png"
+import Two from "./assets/Second.png"
+import Three from "./assets/Thirty.png"
+import Four from "./assets/Four.png"
+import { AuthContext } from './Context.js/auth.js';
+import axios from "axios";
 
 export default function Principal(){
 
+    const { setUser,User } = useContext(AuthContext);
     let navigate = useNavigate();
     const [NewInputOpenOn, setOpenOn] = useState(false)
     const [NewOutputOpenOn, setOpen] = useState(false)
+    const [NewValue1, setValue1] = useState("")
+    const [NewValue2, setValue2] = useState("")
+    const [NewDesc1, setDesc1] = useState("")
+    const [NewDesc2, setDesc2] = useState("")
+    const [ArrayTrans, setArray] = useState([])
+    const [Total, setTotal] = useState(1)
+    const [FullInit, setInit] = useState(false)
+    const [More, MoreOne] = useState(0)
+
     function LogOff(){
 
+
         if(window.confirm("Voce realmente quer deslogar?")){
+            localStorage.removeItem("token");
+            localStorage.removeItem("name");
             navigate("/")
+            
         }   return
        
     }
+
+    useEffect(() => {
+        if(localStorage.getItem("token")){
+         setUser({
+             "token":localStorage.getItem("token"),
+             "name":localStorage.getItem("name")
+         })
+         navigate("/Principal") 
+         console.log(User)
+        }
+     },[])
 
     function NewInp(){
         if(NewInputOpenOn === false){
            setOpenOn(true)
            setOpen(false)
+          
         }else{
            setOpenOn(false)
+          
         }
     }
 
@@ -38,10 +71,130 @@ export default function Principal(){
         if(NewOutputOpenOn === false){
             setOpen(true)
             setOpenOn(false)
+          
         }else{
             setOpen(false)
+           
         }
     }
+
+    function emBreve(){
+        alert("Em desenvolvimento...")
+    }
+
+    function NewEnt(){
+        if(NewValue1 === "" || NewDesc1 === ""){
+            alert("Preencha os espaços em branco!")
+            return
+        }
+
+        const obj = {
+        "description":NewDesc1,
+        "value":NewValue1,
+        "type":"Entrada",
+        "data":"21/03/2021"
+        }
+
+        const Auth = {
+            "headers": { "Authorization": `Bearer ${User.token}` }
+        }
+
+        const promisse = axios.post("http://localhost:5000/addtransaction",obj,Auth)
+        .then((res) => {
+            console.log("Tudo certo chefia");
+            console.log(res.data)
+            setOpenOn(false)
+            MoreOne(More+1)
+            console.log(More)
+        })
+        .catch((err) => console.log(err.response.data))
+        
+    }
+
+    function NewSai(){
+        if(NewValue2 === "" || NewDesc2 === ""){
+            alert("Preencha os espaços em branco!")
+            return
+        }
+
+        const obj = {
+            "description":NewDesc2,
+            "value":NewValue2,
+            "type":"Saida",
+            "data":"21/03/2021"
+            }
+    
+            const Auth = {
+                "headers": { "Authorization": `Bearer ${User.token}` }
+            }
+    
+            const promisse = axios.post("http://localhost:5000/addtransaction",obj,Auth)
+            .then((res) => {
+                console.log("Tudo certo chefia");
+                console.log(res.data)
+                setOpen(false)
+                MoreOne(More+1)
+                console.log(More)
+                
+            })
+            .catch((err) => console.log(err.response.data))
+            
+    }
+
+    useEffect(()=> {
+
+        const Auth = {
+            "headers": { "Authorization": `Bearer ${User.token}` }
+        }
+
+        const promisse = axios.get("http://localhost:5000/transations",Auth)
+        .then((res)=>{
+                setArray(res.data)
+                console.log("Certo Chefia")
+                console.log(ArrayTrans)
+               setInit(true)
+        })
+        .catch((err) => {
+            console.log(err.response.data)
+        })
+    },[More])
+
+    useEffect(() => {
+
+   const En = ArrayTrans.filter(function(men){
+        return men.type === "Entrada"
+        
+   })
+
+   const Resultado1 = En.map(a => Number(a.value))
+
+   var soma1 = 0;
+   for(var i = 0; i < Resultado1.length; i++) {
+       soma1 += Resultado1[i];
+   }
+    console.log(soma1);
+
+   const Alt = ArrayTrans.filter(function(men){
+    return men.value.value
+})
+
+    const Resultado2 = Alt.map(a => Number(a.value))
+
+    var soma2 = 0;
+for(var i = 0; i < Resultado2.length; i++) {
+    soma2 += Resultado2[i];
+}
+
+    if(ArrayTrans === []){
+        setTotal(0)
+    }
+
+    setTotal(soma1-soma2)
+    },[More])
+
+    useEffect(() => {
+        MoreOne(More+1)
+    },[])
 
     return(
         <>
@@ -50,17 +203,17 @@ export default function Principal(){
             <Top>
                     <Namebox>
                         <NameSize>
-                            <img src={Perfil}></img>
-                            <NameRiot>Ola,Fulano!</NameRiot>
+                            <img onClick={emBreve} src={Perfil}></img>
+                            <NameRiot>Ola,{User.name}!</NameRiot>
                             </NameSize>
                        <IconSize>
                        <img src={Leave} onClick={LogOff}/>
-                       <img src={ConfigIcon}/>
+                       <img onClick={emBreve} src={ConfigIcon}/>
                        </IconSize>
                     </Namebox>
-                    <ContainerValor>
+                    <ContainerValor >
                         <ValorAll>
-                            <AllValue>R$ 3000,00</AllValue>
+                            <AllValue>R${Total}</AllValue>
                             <AllValueDesc>Total em conta</AllValueDesc>
                         </ValorAll>
                     </ContainerValor>
@@ -78,31 +231,37 @@ export default function Principal(){
             </Top>
             <NewInputOpen open={NewInputOpenOn}>
                 <p>Nova Entrada</p>
-                <Valor placeholder='Valor'></Valor>
-                <Descricao placeholder='Descrição'></Descricao>
-                <SaveEntrada><p>Salvar entrada</p></SaveEntrada>
+                 <Valor value={NewValue1} onChange={V => setValue1(V.target.value)} placeholder='Valor'></Valor>
+                <Descricao value={NewDesc1} onChange={D => setDesc1(D.target.value)} placeholder='Descrição'></Descricao>
+                <SaveEntrada onClick={NewEnt}><p>Salvar entrada</p></SaveEntrada>
             </NewInputOpen>
             <NewOutputOpen open={NewOutputOpenOn}>
             <p>Nova Saida</p>
-                <Valor placeholder='Valor'></Valor>
-                <Descricao placeholder='Descrição'></Descricao>
-                <SaveEntrada><p>Salvar saida</p></SaveEntrada>
+                <Valor value={NewValue2} onChange={V2 => setValue2(V2.target.value)} placeholder='Valor'></Valor>
+                <Descricao value={NewDesc2} onChange={D2 => setDesc2(D2.target.value)} placeholder='Descrição'></Descricao>
+                <SaveEntrada onClick={NewSai}><p>Salvar saida</p></SaveEntrada>
             </NewOutputOpen>
-            <LatestTrans>
+            <LatestTrans onClick={emBreve}>
                 <p>Ultimas Transações</p>
                 <img src={Chevron}/>
             </LatestTrans>
             <RegistersText>
-            {MockData.map((r) => 
+            {ArrayTrans.map((r) => 
             <ItemBox>
                 <img src={Money}/>
                 <NameItemBox>
-                <BoxName>{r.Description}</BoxName>
-                <DescrItem>{r.Data}</DescrItem>
+                <BoxName>{r.description}</BoxName>
+                <DescrItem>{r.data}</DescrItem>
                 </NameItemBox>
-                <ValueText yn={r.EnOuAlt}>R$:{r.Register}</ValueText>
+                <ValueText yn={r.type}>R$:{r.value}</ValueText>
                 </ItemBox>)}
             </RegistersText>
+            <Footer>
+                <img onClick={emBreve} src={One}/>
+                <img onClick={emBreve} src={Two}/>
+                <img  onClick={emBreve} src={Three}/>
+                <img  onClick={emBreve} src={Four}/>
+            </Footer>
         </Background>
         </>
     )
@@ -149,14 +308,14 @@ const Top = styled.div`
 
 const Namebox = styled.div`
 
-display: flex;
-flex-direction: row;
-justify-content: space-between;
-align-items: center;
-padding: 5px 0px;
-gap: 112px;
-width: 350px;
-height: 40px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0px;
+    gap: 112px;
+    width: 350px;
+    height: 40px;
 
     
 `
@@ -211,61 +370,53 @@ const IconSize = styled.div`
 
 const NameRiot = styled.p`
 
-font-family: 'Poppins';
-font-style: normal;
-font-weight: 600;
-font-size: 16px;
-line-height: 24px;
-/* identical to box height */
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: center;
+    color: #000000;
 
-text-align: center;
-
-color: #000000;
 `
 
 
 const ContainerValor = styled.div`
 
-display: flex;
-flex-direction: row;
-justify-content: space-between;
-align-items: center;
-padding: 0px;
-gap: 125px;
-width: 350px;
-height: 55px;
-left: 23px;
-top: 63px;
-border:1px solid #000;
-margin-top:10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px;
+    gap: 125px;
+    width: 350px;
+    height: 55px;
+    left: 23px;
+    top: 63px;
+    border:1px solid #000;
+    margin-top:10px;
+
 `
 const AllValue = styled.p`
 
-font-family: 'Poppins';
-font-style: normal;
-font-weight: 700;
-font-size: 20px;
-
-/* identical to box height */
-
-text-align: center;
-
-color: #000000;
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 20px;
+    text-align: center;
+    color: #000000;
 
 `
 
 const AllValueDesc = styled.p`
 
-font-family: 'Poppins';
-font-style: normal;
-font-weight: 400;
-font-size: 12px;
-line-height: 18px;
-/* identical to box height */
-
-text-align: center;
-
-color: #5E5E5E;
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 18px;
+    text-align: center;
+    color: #5E5E5E;
 
 `
 
@@ -373,57 +524,57 @@ const NewOutputOpen = styled.div`
 `
 const Valor = styled.input`
 
-margin-left:10px;
-width: 326px;
-height: 58px;
-left: 25px;
-top: 96px;
-background: #FFFFFF;
-border-radius: 5px;
-border:none;
+    margin-left:10px;
+    width: 326px;
+    height: 58px;
+    left: 25px;
+    top: 96px;
+    background: #FFFFFF;
+    border-radius: 5px;
+    border:none;
 
 &::placeholder{
     font-family: 'Inter';
     font-style: normal;
     font-weight: 300;
-font-size: 20px;
-line-height: 23px;
-color: #000000;
+    font-size: 20px;
+    line-height: 23px;
+    color: #000000;
 }
 `
 const Descricao = styled.input`
 
-margin-top:10px;
-margin-left:10px;
-width: 326px;
-height: 58px;
-left: 25px;
-top: 96px;
-border:none;
-background: #FFFFFF;
-border-radius: 5px;
+    margin-top:10px;
+    margin-left:10px;
+    width: 326px;
+    height: 58px;
+    left: 25px;
+    top: 96px;
+    border:none;
+    background: #FFFFFF;
+    border-radius: 5px;
 
 &::placeholder{
     font-family: 'Inter';
     font-style: normal;
     font-weight: 300;
-font-size: 20px;
-line-height: 23px;
-color: #000000;
+    font-size: 20px;
+    line-height: 23px;
+    color: #000000;
 }
 `
 
 const SaveEntrada = styled.button`
 
-margin-top:10px;
-margin-left:10px;
-width: 330px;
-height: 46px;
-left: 25px;
-top: 238px;
-background: #E2CAFC;
-border-radius: 5px;
-cursor: pointer;
+    margin-top:10px;
+    margin-left:10px;
+    width: 330px;
+    height: 46px;
+    left: 25px;
+    top: 238px;
+    background: #E2CAFC;
+    border-radius: 5px;
+    cursor: pointer;
 
 p{
     font-family: 'Inter';
@@ -485,11 +636,12 @@ const RegistersText = styled.div`
 `
 const ItemBox = styled.div`
 
-display:flex;
-flex-direction:row;
-width: 350px;
-height: 45px;
-margin-bottom:5px;
+    display:flex;
+    flex-direction:row;
+    width: 350px;
+    height: 45px;
+    margin-bottom:5px;
+
 img{
     width: 40px;
     height: 40px;
@@ -498,110 +650,121 @@ img{
 
 `
 const NameItemBox = styled.div`
-width: 140px;
-height: 37px;
-left: 50px;
-top: 5px;
-margin-left:5px;
+
+    width: 140px;
+    height: 37px;
+    left: 50px;
+    top: 5px;
+    margin-left:5px;
+
 `
 const BoxName = styled.p`
- font-family: 'Poppins';
-font-style: normal;
-font-weight: 500;
-font-size: 14px;
-line-height: 21px;
-color: #000000;
+
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 21px;
+    color: #000000;
+
 `
 
 const DescrItem = styled.p`
 
-font-family: 'Poppins';
-font-style: normal;
-font-weight: 300;
-font-size: 15px;
-line-height: 15px;
-/* identical to box height */
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 300;
+    font-size: 15px;
+    line-height: 15px;
+    color: #888888;
 
-
-color: #888888;
 `
 const ValueText = styled.p`
 
-
-font-family: 'Poppins';
-font-style: normal;
-font-weight: 500;
-font-size: 17px;
-line-height: 21px;
-/* identical to box height */
-margin-left:100px;
-text-align: center;
-
-color: ${props => props.yn === "Entrada" ? "green" : "red"};
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 17px;
+    line-height: 21px;
+    margin-left:100px;
+    text-align: center;
+    color: ${props => props.yn === "Entrada" ? "green" : "red"};
 `
 
 const LatestTrans = styled.div`
 
-display: flex;
-flex-direction: row;
-justify-content: space-between;
-align-items: center;
-padding: 0px;
-gap: 30px;
-width: 355px;
-height: 24px;
-margin-top:40px;
-
-/* Inside auto layout */
-
-flex: none;
-order: 0;
-flex-grow: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px;
+    gap: 30px;
+    width: 355px;
+    height: 24px;
+    margin-top:40px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
 
 p{
     font-family: 'Poppins';
-font-style: normal;
-font-weight: 600;
-font-size: 16px;
-line-height: 24px;
-/* identical to box height */
-
-text-align: center;
-
-color: #000000;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 0;
-flex-grow: 0;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 24px;
+   text-align: center;
+    color: #000000;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
 }
 
 img{
 
-width: 30px;
-height: 30px;
-
-
-/* Inside auto layout */
-
-flex: none;
-order: 1;
-flex-grow: 0;
+    width: 30px;
+    height: 30px;
+    flex: none;
+    order: 1;
+    flex-grow: 0;
 }
 `
 
 
 const NotFound = styled.div`
 
-font-family: 'Raleway';
-font-style: normal;
-font-weight: 400;
-font-size: 27px;
-line-height: 23px;
-text-align: center;
+    font-family: 'Raleway';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 27px;
+    line-height: 23px;
+    text-align: center;
+    color: #344054;
 
-color: #344054;
+`
 
+const Footer = styled.footer`
+
+    position: fixed;
+    z-index:1;
+    width: 370px;
+    height: 69px;
+    bottom:0;
+    margin-bottom:10px;
+    background: #0E0E16;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    padding: 0px;
+    gap: 3px;
+
+img{
+    width: 24px;
+    height: 24px;
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+    cursor:pointer;
+}
 `

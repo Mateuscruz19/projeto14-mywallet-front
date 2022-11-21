@@ -8,6 +8,7 @@ import Logo from './assets/nICE.png'
 import Go from "./assets/Google.png"
 import { Circles } from 'react-loader-spinner'
 import { Link } from 'react-router-dom';
+import axios from "axios";
 
 export default function Login(){
 
@@ -15,20 +16,51 @@ export default function Login(){
     const [EmailUser, setEmail] = useState("")
     const [SenhaUser, setSenha] = useState("")
 
-    const { setUser } = useContext(AuthContext);
+    const { setUser,User } = useContext(AuthContext);
+    const [SignUser,SetSignUser] = useState({})
+
     let navigate = useNavigate();
 
     function emBreve(){
         alert("Em desenvolvimento...")
     }
 
+    useEffect(() => {
+       if(localStorage.getItem("token")){
+        setUser({
+            "token":localStorage.getItem("token"),
+            "name":localStorage.getItem("name")
+        })
+        navigate("/Principal") 
+        console.log(User)
+       }
+    },[])
+
     function IntroSite(){
         if(EmailUser === "" || SenhaUser === ""){
             alert("Tenha certeza que preencheu todos os campos")
             return
-        }else{
-            navigate("/Principal")
         }
+
+        const obj = {"email":EmailUser,
+            "password":SenhaUser
+        }
+        SetSignUser(obj)
+            axios.post("http://localhost:5000/signin",obj).then((res)=>{
+                localStorage.setItem("token",res.data.token);
+                localStorage.setItem("name",res.data.name)
+                setUser({
+                    "token":res.data.token,
+                    "name":res.data.name
+                })
+                console.log(res.data)
+                console.log(User) 
+                navigate("/Principal")
+            })
+           .catch((err)=>{
+            console.log(err)
+            alert(err.response.data)
+           })
     }
 
     return(
@@ -259,7 +291,7 @@ const Checkbox = styled.div`
     box-sizing: border-box;
     width: 16px;
     height: 16px;
-    border: 1px solid #D0D5DD;
+    border: 1px solid #E2CAFC;
     border-radius: 4px;
     flex: none;
     order: 0;
@@ -287,7 +319,7 @@ const Forgot = styled.p`
     font-weight: 500;
     font-size: 14px;
     line-height: 20px;
-    color: #5429FF;
+    color: #E2CAFC;
     flex: none;
     order: 1;
     flex-grow: 0;
@@ -316,9 +348,10 @@ const Entrar = styled.button`
     align-items: center;
     width: 327px;
     height: 44px;
-    background: #5429FF;
+    background: #000;
     border-radius: 8px;
     cursor: pointer;
+    border:none;
 
     p{
     font-family: 'Inter';
@@ -326,7 +359,7 @@ const Entrar = styled.button`
     font-weight: 500;
     font-size: 16px;
     line-height: 20px;
-    color: #FFFFFF;
+    color:#FFF;
     flex: none;
     order: 0;
     flex-grow: 0;
@@ -346,7 +379,8 @@ const GoogleBox = styled.div`
     height: 44px;
     left: 24px;
     top: 630px;
-    border: 1px solid #D0D5DD;
+    background-color:#000;
+    border: 1px solid #E2CAFC;
     border-radius: 8px;
     cursor: pointer;
 
@@ -382,7 +416,7 @@ const Googletext = styled.p`
     font-weight: 500;
     font-size: 16px;
     line-height: 20px;
-    color: #344054;
+    color: #FFFF;
     flex: none;
     order: 1;
     flex-grow: 0;
@@ -407,7 +441,7 @@ const RegisterBox = styled.p`
     cursor: pointer;
 
     span{
-        color:#5429FF
+        color:#E2CAFC;
     }
 
     &:hover{

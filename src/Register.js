@@ -8,6 +8,7 @@ import Logo from './assets/nICE.png'
 import Go from "./assets/Google.png"
 import { Circles } from 'react-loader-spinner'
 import { Link } from 'react-router-dom';
+import axios from "axios";
 
 export default function Register(){
 
@@ -17,6 +18,9 @@ export default function Register(){
     const [SenhaUser, setSenha] = useState("")
     const [ConfirmSenhaUser, setConfirm] = useState("")
 
+    const [SignUser,SetSignUser] = useState({})
+
+
     const { setUser } = useContext(AuthContext);
     let navigate = useNavigate();
 
@@ -24,7 +28,20 @@ export default function Register(){
         if(NameUser === "" || EmailUser === "" || SenhaUser === "" || ConfirmSenhaUser === ""){
             return alert("Tenha certeza que preencheu todos os campos")
         }
-        navigate("/")
+
+        const obj = { name: NameUser, email: EmailUser,  password: SenhaUser,passwordConfirmation: ConfirmSenhaUser
+        }
+        SetSignUser(obj)
+        const promisse = axios.post("http://localhost:5000/signup",obj)
+        .then((res) =>{
+            console.log("Cadastro concluido")
+            console.log(res)
+            navigate("/")
+        })
+        .catch((err) => {
+            console.log(err.response.data)
+            console.log(err)
+        })
     }
   
     return(
@@ -219,7 +236,7 @@ const Entrar = styled.button`
     align-items: center;
     width: 327px;
     height: 44px;
-    background: #5429FF;
+    background: #000;
     border-radius: 8px;
     cursor: pointer;
 
@@ -236,62 +253,7 @@ const Entrar = styled.button`
     }
 
 `
-const GoogleBox = styled.div`
 
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 10px 90px;
-    gap: 10px;
-    width: 327px;
-    height: 44px;
-    left: 24px;
-    top: 630px;
-    border: 1px solid #D0D5DD;
-    border-radius: 8px;
-    cursor: pointer;
-
-`
-const GoogleContainer = styled.div`
-
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 0px;
-    gap: 8px;
-    width: 180px;
-    height: 24px;
-    flex: none;
-    order: 0;
-    flex-grow: 0;
-
-`
-
-const Google = styled.img`
-
-    width: 24px;
-    height: 24px;
-    flex: none;
-    order: 0;
-    flex-grow: 0;
-
-`
-const Googletext = styled.p`
-
-    font-family: 'Inter';
-    font-style: normal;
-    font-weight: 500;
-    font-size: 16px;
-    line-height: 20px;
-    color: #344054;
-    flex: none;
-    order: 1;
-    flex-grow: 0;
-    
-
-`
 
 const RegisterBox = styled.p`
 
@@ -310,7 +272,7 @@ const RegisterBox = styled.p`
     cursor: pointer;
 
     span{
-        color:#5429FF
+        color:#E2CAFC;
     }
 
     &:hover{
