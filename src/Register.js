@@ -24,6 +24,7 @@ export default function Register(){
         if(NameUser === "" || EmailUser === "" || SenhaUser === "" || ConfirmSenhaUser === ""){
             return alert("Tenha certeza que preencheu todos os campos")
         }
+        navigate("/")
     }
   
     return(
@@ -37,16 +38,14 @@ export default function Register(){
                 </ConteinerTop>
                 <ContainerBot>
                     <TextPass>Nome</TextPass>
-                    <Senha placeholder='Nome' onChange={N => setName(N)}></Senha>
+                    <Senha placeholder='Nome' value={NameUser} onChange={N => setName(N.target.value)}></Senha>
                     <TextEmail>Email</TextEmail>
-                    <Email placeholder='E-mail'onChange={E => setEmail(E)}></Email>
+                    <Email placeholder='E-mail' value={EmailUser} onChange={E => setEmail(E.target.value)}></Email>
                     <TextPass>Senha</TextPass>
-                    <Senha placeholder='Senha' onChange={S => setSenha(S)}></Senha>
+                    <Senha placeholder='Senha' value={SenhaUser} onChange={S => setSenha(S.target.value)}></Senha>
                     <TextPass>Confirme a senha</TextPass>
-                    <Senha placeholder='Confirme a senha' onChange={C => setConfirm(C)}></Senha>
-                <Link to="/Principal" disabled={Loading ? true : false}>
+                    <Senha placeholder='Confirme a senha' value={ConfirmSenhaUser} onChange={C => setConfirm(C.target.value)}></Senha> 
                 <Entrar onClick={IntroSite}><p>Registrar-se</p></Entrar>
-                </Link>
                 <Link to="/" disabled={Loading ? true : false}>
                 <RegisterBox>Já tem uma conta?<span>Logue!</span></RegisterBox>
                 </Link>
@@ -222,6 +221,7 @@ const Entrar = styled.button`
     height: 44px;
     background: #5429FF;
     border-radius: 8px;
+    cursor: pointer;
 
     p{
     font-family: 'Inter';

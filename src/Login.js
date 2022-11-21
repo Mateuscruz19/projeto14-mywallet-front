@@ -22,6 +22,15 @@ export default function Login(){
         alert("Em desenvolvimento...")
     }
 
+    function IntroSite(){
+        if(EmailUser === "" || SenhaUser === ""){
+            alert("Tenha certeza que preencheu todos os campos")
+            return
+        }else{
+            navigate("/Principal")
+        }
+    }
+
     return(
         <>
         <GlobalStyle/>
@@ -33,20 +42,18 @@ export default function Login(){
                 </ConteinerTop>
                 <ContainerBot>
                     <TextEmail>Email</TextEmail>
-                    <Email placeholder='E-mail'></Email>
+                    <Email placeholder='E-mail' value={EmailUser} onChange={E => setEmail(E.target.value)}></Email>
 
                     <TextPass>Senha</TextPass>
-                    <Senha placeholder='Senha'></Senha>
+                    <Senha placeholder='Senha' value={SenhaUser} onChange={S => setSenha(S.target.value)}></Senha>
                 <ConteinerRemember>
                     <RememberMe>
                         <Checkbox onClick={emBreve}></Checkbox>
                         <RememberMeText onClick={emBreve}>Lembrar-me</RememberMeText>
                     </RememberMe>
                     <Forgot onClick={emBreve}>Esqueceu a senha?</Forgot>
-                </ConteinerRemember>
-                <Link to="/Principal" disabled={Loading ? true : false}>
-                <Entrar><p>Entrar</p></Entrar>
-                </Link>
+                </ConteinerRemember>        
+                <Entrar onClick={IntroSite}><p>Entrar</p></Entrar>
                 <Or>Ou</Or>
                 <GoogleBox>
                     <GoogleContainer>
@@ -72,6 +79,8 @@ a{
     text-decoration:none;
 }
 `
+
+
 
 const Background = styled.main`
 
@@ -300,7 +309,7 @@ const Or = styled.p`
 
 const Entrar = styled.button`
 
-    margin-top:40px;
+    margin-top:20px;
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -309,6 +318,7 @@ const Entrar = styled.button`
     height: 44px;
     background: #5429FF;
     border-radius: 8px;
+    cursor: pointer;
 
     p{
     font-family: 'Inter';
